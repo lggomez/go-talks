@@ -2,11 +2,11 @@ Go Dep
 
 Intro, hype y migración desde govendor
 
-Luis Gabriel Gómez
+*Luis Gabriel Gómez*
 
 * ¿Que es Go Dep?
 
-.image ./resources/DigbyShadows.png _ _
+.image ./resources/DigbyShadows.png
 
 * ¿Que es Go Dep?
 
@@ -14,7 +14,7 @@ Luis Gabriel Gómez
 - Comenzó como un proyecto open source de un tercero hasta que ganó tracción y la consecuente adopción como candidato a solución oficial por parte del equipo de go
 - Todavía se lo considera en fase experimental pero está lo suficientemente estable como para usarlo en producción
 
-- [[https://github.com/golang/dep][Github repo]]
+[[https://github.com/golang/dep][Github repo]]
 
 * Motivación: Migracion de govendor
 
