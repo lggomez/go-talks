@@ -2,9 +2,9 @@ Go Dep
 
 Intro, hype y migración desde govendor
 
-*Luis Gabriel Gómez*
+Luis Gabriel Gómez
 
-* ¿Que es Go Dep?
+* 
 
 .image ./resources/DigbyShadows.png _ 500
 
@@ -48,14 +48,14 @@ Dep automaticamente procesa los imports del proyecto e indexa las dependencias b
 
 Al final, vamos a tener nuestro directorio vendor con las dependencias y 2 archivos:
 
-- Gopkg.toml: Contiene los constraints (especificaciones de versión) y metadatos
-- Gopkg.lock: Contiene datos de todas las dependencias actuales, es autogenerado
+- *Gopkg.toml*: Contiene los constraints (especificaciones de versión) y metadatos
+- *Gopkg.lock*: Contiene datos de todas las dependencias actuales, es autogenerado
 
 Si la dependencia no tiene constraints, va a buscar por defecto el último commit del branch master (o versión, si el proyecto tiene releases)
 
 * Tips post-migración
 
-- Si optamos por migrar, verificar el estado actual de las dependencias (clean & build -a). Si hay problemas, borrar todos los fuentes y restaurarlos mediante `dep ensure`
-- Se pueden congelar las dependencias agregando las versiones encontradas en Gopkg.lock como constraints en Gopkg.toml
-- Implementar releases de github con versionado semver ayuda a un mejor mantenimiento de dependencias, y dep nos permite aprovechar esto
+- Si optamos por migrar, verificar el estado actual de las dependencias (clean & build -a). Si hay problemas, borrar todos los fuentes y restaurarlos mediante `dep`ensure`
+- Se pueden congelar las dependencias agregando las versiones encontradas en *Gopkg.lock* como constraints en *Gopkg.toml*
+- Implementar releases de github con _versionado_semver_ ayuda a un mejor mantenimiento de dependencias, y dep nos permite aprovechar esto
 
