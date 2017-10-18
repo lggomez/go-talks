@@ -30,11 +30,12 @@ Govendor es una solución bastante usada (y el estándar defacto en meli). Sin e
 - Soporte nativo de semver para dependencias, con posiblidad de establecer rangos
 - Indexado de dependencias deduplicadas, agrupadas por subpackages
 - Soporte de constraints para resolver versiones puntuales
+- Archivos de configuración en formato toml (dialecto de yaml), más amistoso que json plano
 
 * Tips pre-migración
 
 - Si la migración va de la mano con una actualizacion de dependencias, mucho mejor
-- La migración puede causar inadvertidamente problemas en nuestras dependencias existentes. Si no es completamente necesario, borramos /vendor
+- La migración puede causar inadvertidamente problemas en nuestras dependencias existentes. Si no es completamente necesario conservar las versiones de dependencias actuales, borramos los fuentes de /vendor
 
 * Migrando
 
@@ -48,14 +49,14 @@ Dep automaticamente procesa los imports del proyecto e indexa las dependencias b
 
 Al final, vamos a tener nuestro directorio vendor con las dependencias y 2 archivos:
 
-- *Gopkg.toml*: Contiene los constraints (especificaciones de versión) y metadatos
-- *Gopkg.lock*: Contiene datos de todas las dependencias actuales, es autogenerado
+- *Gopkg.toml*: Contiene los constraints (especificaciones de versión) y otros metadatos opcionales
+- *Gopkg.lock*: Es el índice de nuestras dependencias, autogenerado
 
 Si la dependencia no tiene constraints, va a buscar por defecto el último commit del branch master (o versión, si el proyecto tiene releases)
 
 * Tips post-migración
 
 - Si optamos por migrar, verificar el estado actual de las dependencias (`clean`&`build`-a`). Si hay problemas, borrar todos los fuentes y restaurarlos mediante `dep`ensure`
-- Se pueden congelar las dependencias agregando las versiones encontradas en *Gopkg.lock* como constraints en *Gopkg.toml*
-- Implementar releases de github con *versionado*semver* ayuda a un mejor mantenimiento de dependencias, y dep nos permite aprovechar esto
+- Se pueden congelar las dependencias agregando las versiones encontradas en *Gopkg.lock* como constraints en *Gopkg.toml*. Si deseamos congelar todo, esto implica pasar todas las entradas del archivo lock al toml principal
+- Implementar releases de github con *versionado*semver* ayuda a un mejor mantenimiento de dependencias, y dep nos permite aprovechar esto (*muy* útil para nuestros frameworks o toolkits)
 
