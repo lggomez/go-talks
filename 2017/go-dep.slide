@@ -20,8 +20,8 @@ Luis Gabriel Gómez
 
 Govendor es una solución bastante usada (y el estándar defacto en meli). Sin embargo, tiene los siguientes puntos de mejora:
 
-- Soporta versionado y branching pero solo a la hora de agregar dependencias (fetch)
-- El índice de dependencias (vendor.json) solo maneja hashes de commits (revision)
+- Soporta versionado y branching pero solo a la hora de agregar dependencias (`fetch`)
+- El índice de dependencias *vendor.json* solo maneja hashes de commits (`revision`)
 - Las dependencias se multiplican por la cantidad de subpackages que usemos (ej: gin, gin/binding, gin/render)
 
 * Features (comparado a govendor)
@@ -38,11 +38,11 @@ Govendor es una solución bastante usada (y el estándar defacto en meli). Sin e
 
 * Migrando
 
-- 1. Instalar go dep (brew install dep && brew upgrade dep)
+- 1. Instalar go dep (`brew`install`dep`&&`brew`upgrade`dep`)
 - 2. Ir al root de nuestro proyecto
-- 3. Inicializar dep (dep init)
+- 3. Inicializar dep (`dep`init`)
 
-Dep automaticamente procesa los imports del proyecto e indexa las dependencias buscando las versiones compatibles más recientes. Si no se borra el directorio vendor antiguo, va a intentar inferir las depdencias de nuestro vendor.json, y renombrar el directorio antiguo para backup
+Dep automaticamente procesa los imports del proyecto e indexa las dependencias buscando las versiones compatibles más recientes. Si no se borra el directorio vendor antiguo, va a intentar inferir las depdencias de nuestro *vendor.json*, y renombrar el directorio antiguo para backup
 
 * Migrando (cont.)
 
@@ -55,7 +55,7 @@ Si la dependencia no tiene constraints, va a buscar por defecto el último commi
 
 * Tips post-migración
 
-- Si optamos por migrar, verificar el estado actual de las dependencias (clean & build -a). Si hay problemas, borrar todos los fuentes y restaurarlos mediante `dep`ensure`
+- Si optamos por migrar, verificar el estado actual de las dependencias (`clean`&`build`-a`). Si hay problemas, borrar todos los fuentes y restaurarlos mediante `dep`ensure`
 - Se pueden congelar las dependencias agregando las versiones encontradas en *Gopkg.lock* como constraints en *Gopkg.toml*
-- Implementar releases de github con _versionado_semver_ ayuda a un mejor mantenimiento de dependencias, y dep nos permite aprovechar esto
+- Implementar releases de github con *versionado*semver* ayuda a un mejor mantenimiento de dependencias, y dep nos permite aprovechar esto
 
