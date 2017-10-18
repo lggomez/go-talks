@@ -18,7 +18,7 @@ Luis Gabriel Gómez
 
 * Motivación: Migracion de govendor
 
-Govendor es una solución bastante usada (y el estándar defacto en meli). Sin embargo, tiene los siguientes puntos de mejora:
+Govendor es una solución bastante usada (y el estándar defacto en meli). Sin embargo, tiene las siguientes falencias:
 
 - Soporta versionado y branching pero solo a la hora de agregar dependencias (`fetch`)
 - El índice de dependencias *vendor.json* solo maneja hashes de commits (`revision`)
@@ -59,4 +59,56 @@ Si la dependencia no tiene constraints, va a buscar por defecto el último commi
 - Si optamos por migrar, verificar el estado actual de las dependencias (`clean`&`build`-a`). Si hay problemas, borrar todos los fuentes y restaurarlos mediante `dep`ensure`
 - Se pueden congelar las dependencias agregando las versiones encontradas en *Gopkg.lock* como constraints en *Gopkg.toml*. Si deseamos congelar todo, esto implica pasar todas las entradas del archivo lock al toml principal
 - Implementar releases de github con *versionado*semver* ayuda a un mejor mantenimiento de dependencias, y dep nos permite aprovechar esto (*muy* útil para nuestros frameworks o toolkits)
+
+* Antes (vendor.json)
+
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "RsNwOto8G8aXIiRrlFn4dtU9q/g=",
+			"path": "github.com/gin-gonic/gin",
+			"revision": "e2212d40c62a98b388a5eb48ecbdcf88534688ba",
+			"revisionTime": "2016-12-04T22:13:08Z"
+		},
+		{
+			"checksumSHA1": "UsILDoIB2S7ra+w2fMdb85mX3HM=",
+			"path": "github.com/gin-gonic/gin/binding",
+			"revision": "3900df04d2a88e22beaf6a2970c63648b9e1b0e1",
+			"revisionTime": "2016-10-12T14:51:06Z"
+		},
+		{
+			"checksumSHA1": "PHv9FNb7YavJWtAHcY6ZgXmkmHs=",
+			"path": "github.com/gin-gonic/gin/render",
+			"revision": "3900df04d2a88e22beaf6a2970c63648b9e1b0e1",
+			"revisionTime": "2016-10-12T14:51:06Z"
+		},
+
+* Después (Gopkg.toml)
+
+
+[[constraint]]
+  name = "github.com/gin-gonic/gin"
+  revision = "b8b68314faa067acae5b17c828127b04af51ebe2"
+
+[[constraint]]
+  name = "github.com/gin-contrib/pprof"
+  version = "v1.1"
+
+[[constraint]]
+  name = "github.com/gin-contrib/sse"
+  revision = "22d885f9ecc78bf4ee5d72b937e4bbcdc58e8cae"
+
+[[constraint]]
+  name = "github.com/go-ozzo/ozzo-validation"
+  version = "3.3.0"
+
+[[constraint]]
+  name = "github.com/mercadolibre/go-meli-toolkit"
+  revision = "5f9e1ff923b701777cf83d6b6417223a136ca938"
+
+[[constraint]]
+  name = "github.com/newrelic/go-agent"
+
 
