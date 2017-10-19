@@ -66,8 +66,8 @@ Si la dependencia no tiene constraints, va a buscar por defecto el último commi
 
 * Después (Gopkg.toml)
 
-.image ./resources/after1.png _ 732
+.image ./resources/after1.png 700 _
 
 * Después (Gopkg.lock)
 
-.image ./resources/after2.png _ 1066
+.image ./resources/after2.png 700 _
