@@ -8,25 +8,25 @@ Luis Gabriel Gómez
 
 .image ./resources/DigbyShadows.png _ 500
 
-* ¿Que es Go Dep?
+* ¿Qué es Go Dep?
 
-- Go dep es el prototipo oficial de gestor de dependencias para golang 
+- *Go*dep* es el prototipo oficial de gestor de dependencias para golang 
 - Comenzó como un proyecto open source de un tercero hasta que ganó tracción y la consecuente adopción como candidato a solución oficial por parte del equipo de go
 - Todavía se lo considera en fase experimental pero está lo suficientemente estable como para usarlo en producción
 
 [[https://github.com/golang/dep][Github repo]]
 
-* Motivación: Migracion de govendor
+* Motivación: Migración desde govendor
 
 Govendor es una solución bastante usada (y el estándar defacto en meli). Sin embargo, tiene las siguientes falencias:
 
-- Soporta versionado y branching pero solo a la hora de agregar dependencias (`fetch`)
+- Soporta versionado y branching pero sólo a la hora de agregar dependencias (`fetch`)
 - El índice de dependencias *vendor.json* solo maneja hashes de commits (`revision`)
 - Las dependencias se multiplican por la cantidad de subpackages que usemos (ej: gin, gin/binding, gin/render)
 
-* Features (comparado a govendor)
+* Features (comparado con govendor)
 
-- Soporte de migración desde otras herramientas de vendoring (en nuestro caso nos interesa go vendor)
+- Soporte de migración desde otras herramientas de vendoring
 - Soporte nativo de semver para dependencias, con posiblidad de establecer rangos
 - Indexado de dependencias deduplicadas, agrupadas por subpackages
 - Soporte de constraints para resolver versiones puntuales
@@ -34,7 +34,7 @@ Govendor es una solución bastante usada (y el estándar defacto en meli). Sin e
 
 * Tips pre-migración
 
-- Si la migración va de la mano con una actualizacion de dependencias, mucho mejor
+- Si la migración va de la mano con una actualización de dependencias, mucho mejor
 - La migración puede causar inadvertidamente problemas en nuestras dependencias existentes. Si no es completamente necesario conservar las versiones de dependencias actuales, borramos los fuentes de /vendor
 
 * Migrando
@@ -43,7 +43,7 @@ Govendor es una solución bastante usada (y el estándar defacto en meli). Sin e
 - 2. Ir al root de nuestro proyecto
 - 3. Inicializar dep (`dep`init`)
 
-Dep automaticamente procesa los imports del proyecto e indexa las dependencias buscando las versiones compatibles más recientes. Si no se borra el directorio vendor antiguo, va a intentar inferir las depdencias de nuestro *vendor.json*, y renombrar el directorio antiguo para backup
+Dep automáticamente procesa los imports del proyecto e indexa las dependencias buscando las versiones compatibles más recientes. Si no se borra el directorio vendor antiguo, va a intentar inferir las depdencias de nuestro *vendor.json*, y renombrar el directorio antiguo para backup
 
 * Migrando (cont.)
 
@@ -57,7 +57,7 @@ Si la dependencia no tiene constraints, va a buscar por defecto el último commi
 * Tips post-migración
 
 - Si optamos por migrar, verificar el estado actual de las dependencias (`clean`&`build`-a`). Si hay problemas, borrar todos los fuentes y restaurarlos mediante `dep`ensure`
-- Se pueden congelar las dependencias agregando las versiones encontradas en *Gopkg.lock* como constraints en *Gopkg.toml*. Si deseamos congelar todo, esto implica pasar todas las entradas del archivo lock al toml principal
+- Se pueden congelar las dependencias agregando las versiones encontradas en *Gopkg.lock* como constraints en *Gopkg.toml*. Si deseamos congelar todo, esto implica pasar todas las entradas del archivo .lock al .toml principal
 - Implementar releases de github con *versionado*semver* ayuda a un mejor mantenimiento de dependencias, y dep nos permite aprovechar esto (*muy* útil para nuestros frameworks o toolkits)
 
 * Antes (vendor.json)
