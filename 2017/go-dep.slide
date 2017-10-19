@@ -62,12 +62,12 @@ Si la dependencia no tiene constraints, va a buscar por defecto el último commi
 
 * Antes (vendor.json)
 
-.image ./resources/before.png 700 _
+.image ./resources/before.png _ 704
 
 * Después (Gopkg.toml)
 
-.image ./resources/after1.png 700 _
+.image ./resources/after1.png _ 732
 
 * Después (Gopkg.lock)
 
-.image ./resources/after2.png 700 _
+.image ./resources/after2.png _ 1066
