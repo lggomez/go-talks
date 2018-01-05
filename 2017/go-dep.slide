@@ -41,7 +41,7 @@ Govendor es una solución bastante usada (y el estándar defacto en meli). Sin e
 
 - 1. Instalar go dep (`brew`install`dep`&&`brew`upgrade`dep`)
 - 2. Ir al root de nuestro proyecto
-- 3. Inicializar dep (`dep`init`)
+- 3. Inicializar dep (`dep`init`). Si le pasamos el parámetro -gopath, intentará resolver primero los packages desde nuestro gopath
 
 Dep automáticamente procesa los imports del proyecto e indexa las dependencias buscando las versiones compatibles más recientes. Si no se borra el directorio vendor antiguo, va a intentar inferir las depdencias de nuestro *vendor.json*, y renombrar el directorio antiguo para backup
 
