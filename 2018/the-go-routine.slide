@@ -11,11 +11,7 @@ Luis Gabriel Gómez - Mercadolibre
 
 * Nuevo o curioso en Go?
 
-*Golang Basics*->* [[https://goo.gl/nC6lyn][https://goo.gl/nC6lyn]]
-
-* 
-
-* 
+*Golang Basics* -> [[https://goo.gl/nC6lyn][https://goo.gl/nC6lyn]]
 
 * 
 
@@ -25,7 +21,8 @@ Luis Gabriel Gómez - Mercadolibre
 - 3 años de go (en meli)
 - Actualmente sirviendo millones de req/s (y en aumento!)
 
-Como llegamos? Hacia dónde vamos?
+
+Cómo llegamos? Hacia dónde vamos?
 
 * En perspectiva
 
@@ -38,14 +35,19 @@ Como llegamos? Hacia dónde vamos?
 * Algunas preguntas
 
 - Por qué go?
-- Go o no go, la cuestión
+- To Go or not to Go, la cuestión
 - Cómo lo usamos?
 - Cómo trabajamos?
 
 
 * Por qué go?
 
-Blogposts y forobardos en la web sobre el tema sobran. En el contexto de meli:
+Blogposts y forobardos en la web sobre el tema sobran
+.image ./resources/ghangman.jpg _ 300
+
+* Por qué go?
+
+En el contexto de meli:
 
 - Performance
 - Curva de aprendizaje
