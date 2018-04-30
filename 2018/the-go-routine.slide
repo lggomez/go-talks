@@ -1,73 +1,89 @@
 The Go Routine
 
-El día a día con Go, como lo usamos y por qué lo elegimos
+Por qué lo elegimos, cómo lo usamos y el día a día con Go
+Mayo 2018
 
-Luis Gabriel Gómez
+Luis Gabriel Gómez - Mercadolibre
 
 * 
 
 .image ./resources/gopherswrench.jpg _ 500
 
-* ¿Qué es Go Dep?
+* Nuevo o curioso en Go?
 
-- *Go*dep* es el prototipo oficial de gestor de dependencias para golang 
-- Comenzó como un proyecto open source de un tercero hasta que ganó tracción y la consecuente adopción como candidato a solución oficial por parte del equipo de go
-- Todavía se lo considera en fase experimental pero está lo suficientemente estable como para usarlo en producción
+*Golang Basics*->* [[https://goo.gl/nC6lyn][https://goo.gl/nC6lyn]]
 
-[[https://github.com/golang/dep][Github repo]]
+* 
 
-* Motivación: Migración desde govendor
+* 
 
-Govendor es una solución bastante usada (y el estándar defacto en meli). Sin embargo, tiene las siguientes falencias:
+* 
 
-- Soporta versionado y branching pero sólo a la hora de agregar dependencias (`fetch`)
-- El índice de dependencias *vendor.json* solo maneja hashes de commits (`revision`)
-- Las dependencias se multiplican por la cantidad de subpackages que usemos (ej: gin, gin/binding, gin/render)
+* En retrospectiva
 
-* Features (comparado con govendor)
+- 8 años de go
+- 3 años de go (en meli)
+- Actualmente sirviendo millones de req/s (y en aumento!)
 
-- Soporte de migración desde otras herramientas de vendoring
-- Soporte nativo de semver para dependencias, con posiblidad de establecer rangos
-- Indexado de dependencias deduplicadas, agrupadas por subpackages
-- Soporte de constraints para resolver versiones puntuales
-- Archivos de configuración en formato toml (dialecto de yaml), más amistoso que json plano
+Como llegamos? Hacia dónde vamos?
 
-* Tips pre-migración
+* En perspectiva
 
-- Si la migración va de la mano con una actualización de dependencias, mucho mejor
-- La migración puede causar inadvertidamente problemas en nuestras dependencias existentes. Si no es completamente necesario conservar las versiones de dependencias actuales, borramos los fuentes de /vendor
+- Python (27 años)
+- PHP (23 años) 
+- Java (22 años)
+- Grails (12 años)
+- NodeJS (8 años)
 
-* Migrando
+* Algunas preguntas
 
-- 1. Instalar go dep (`brew`install`dep`&&`brew`upgrade`dep`)
-- 2. Ir al root de nuestro proyecto
-- 3. Inicializar dep (`dep`init`). Si le pasamos el parámetro -gopath, intentará resolver primero los packages desde nuestro gopath
+- Por qué go?
+- Go o no go, la cuestión
+- Cómo lo usamos?
+- Cómo trabajamos?
 
-Dep automáticamente procesa los imports del proyecto e indexa las dependencias buscando las versiones compatibles más recientes. Si no se borra el directorio vendor antiguo, va a intentar inferir las depdencias de nuestro *vendor.json*, y renombrar el directorio antiguo para backup
 
-* Migrando (cont.)
+* Por qué go?
 
-Al final, vamos a tener nuestro directorio vendor con las dependencias y 2 archivos:
+Blogposts y forobardos en la web sobre el tema sobran. En el contexto de meli:
 
-- *Gopkg.toml*: Contiene los constraints (especificaciones de versión) y otros metadatos opcionales
-- *Gopkg.lock*: Es el índice de nuestras dependencias, autogenerado
+- Performance
+- Curva de aprendizaje
+- Simpleza
 
-Si la dependencia no tiene constraints, va a buscar por defecto el último commit del branch master (o versión, si el proyecto tiene releases)
+* Performance
 
-* Tips post-migración
+- Excelente concurrencia nativa y de bajo costo con goroutines (green threads)
+- Garbage collector concurrente, pausas negligibles en APIs
+- Compilación rápida, linkeo estático por defecto (y dynlink a partir de 1.5)
+- Uso de memoria mínimo comparado con alternativas managed
+- Punteros + slices nativos
 
-- Si optamos por migrar, verificar el estado actual de las dependencias (`clean`&`build`-a`). Si hay problemas, borrar todos los fuentes y restaurarlos mediante `dep`ensure`
-- Se pueden congelar las dependencias agregando las versiones encontradas en *Gopkg.lock* como constraints en *Gopkg.toml*. Si deseamos congelar todo, esto implica pasar todas las entradas del archivo .lock al .toml principal
-- Implementar releases de github con *versionado*semver* ayuda a un mejor mantenimiento de dependencias, y dep nos permite aprovechar esto (*muy* útil para nuestros frameworks o toolkits)
+* Curva de aprendizaje
 
-* Antes (vendor.json)
+- Extensa documentación disponible
+- Poca dependencia en frameworks y plataformas de terceros
+- Soporte de testing nativo
 
-.image ./resources/before.png _ 704
+* Simpleza
 
-* Después (Gopkg.toml)
+- Lenguaje de reducida superficie sintáctica
+- Linkeo estático = !(DLL hell) - por ahora...
+- Poco cambalache objetoso gracias a duck typing
+- El compilador ayuda, las referencias sin uso se consideran errores
 
-.image ./resources/after1.png 550 _
 
-* Después (Gopkg.lock)
+* Go o no go, la cuestión
 
-.image ./resources/after2.png 550 _
+Como siempre, se trata de (intentar) seguir la máxima "The right tool for the right job"
+
+Go es nuestra primera opción para:
+- APIs core: Poca lógica de negocio, *muchos* requests por segundo
+- Microservicios: Multitenancia sobre nuestro storage KV
+- APIs cacheables: Poco uso de memoria permite masivos cache in-memory
+
+Consideramos Java en lugar de Go para:
+- Migraciones sin rediseño de sistemas "enterprise" (alias AbstractSingletonProxyFactoryBean)
+- Extensibilidad y tuneo de librerías/productos ya basados en java (Hystrix, Cassandra)
+- Ciertos middle-ends y orquestadores
+
