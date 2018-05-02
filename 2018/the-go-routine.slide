@@ -76,7 +76,7 @@ La intención de esta presentación es mostrar por qué nos ha servido a nosotro
 * Por qué Go? - Simpleza
 
 - Lenguaje de reducida superficie sintáctica
-- Linkeo estático
+- Linkeo estático = no DLL hell
 - Poco cambalache objetoso gracias a duck typing
 - El compilador ayuda, las referencias sin uso se consideran errores
 
@@ -101,6 +101,20 @@ Sin entrar en detalles de lenguaje, un gran diferencial en proceso de desarrollo
 - Configurabilidad versus simpleza
 
 *Hard* *mode*: Pipeline Setup & CI -> deploy 100% automático y aplicable a _N_ instancias
+
+Dicho esto, podemos hacer una comparación básica de la infra aplicativa promedio utilizada por una api en Java y Go
+
+* Go vs Java - Infra: Java
+
+.image ./resources/infra_java.png _ 650
+
+* Go vs Java - Infra: Grails (bonus track)
+
+.image ./resources/infra_grails.png _ 550
+
+* Go vs Java - Infra: Go
+
+.image ./resources/infra_go.png _ 550
 
 * To Go or not to Go
 
