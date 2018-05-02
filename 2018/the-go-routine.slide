@@ -1,59 +1,65 @@
 The Go Routine
 
-Por qué lo elegimos, cómo lo usamos y el día a día con Go
+Por qué lo elegimos, cómo lo usamos y el día a día con Go 
 Mayo 2018
 
 Luis Gabriel Gómez - Mercadolibre
 
 * 
 
-.image ./resources/gopherswrench.jpg _ 500
+.image ./resources/gopherswrench.jpg _ 900
 
 * Nuevo o curioso en Go?
 
-*Golang Basics* -> [[https://goo.gl/nC6lyn][https://goo.gl/nC6lyn]]
+*Golang* *Basics* -> [[https://goo.gl/nC6lyn][https://goo.gl/nC6lyn]] 
 
-* 
+* Indice
 
-* En retrospectiva
+- Por qué Go?
+- To Go or not to Go
+- Tooling e IDEs
+- Un día de trabajo
 
-- 8 años de go
-- 3 años de go (en meli)
+* Intro - En retrospectiva
+
+- 8 años de Go 
+- 3 años en MeLi
 - Actualmente sirviendo millones de req/s (y en aumento!)
 
 
 Cómo llegamos? Hacia dónde vamos?
 
-* En perspectiva
+* Intro - En perspectiva
 
-- Python (27 años)
-- PHP (23 años) 
-- Java (22 años)
-- Grails (12 años)
-- NodeJS (8 años)
+No está de mas ver la comparativa entre la edad de Go y la de algunas de las otras tecnologías que usan o han usado en MeLi: 
 
-* Algunas preguntas
+- Python: 27 años
+- PHP: 23 años 
+- Java: 22 años
+- Grails: 12 años
+- NodeJS: 8 años
 
-- Por qué go?
+* Intro - Algunas preguntas
+
+- Por qué Go?
+- Go vs Java - Infra
 - To Go or not to Go, la cuestión
 - Cómo lo usamos?
 - Cómo trabajamos?
 
+* Por qué Go?
 
-* Por qué go?
+Blogposts y forobardos en la web sobre el tema sobran...
+.image ./resources/ghangman.jpg _ 450
+La intención de esta presentación es mostrar por qué nos ha servido a nosotros en MeLi
 
-Blogposts y forobardos en la web sobre el tema sobran
-.image ./resources/ghangman.jpg _ 300
-
-* Por qué go?
-
-En el contexto de meli:
+* Por qué Go? - En MeLi
 
 - Performance
 - Curva de aprendizaje
 - Simpleza
 
-* Performance
+* Por qué Go? - Performance
 
 - Excelente concurrencia nativa y de bajo costo con goroutines (green threads)
 - Garbage collector concurrente, pausas negligibles en APIs
@@ -61,31 +67,56 @@ En el contexto de meli:
 - Uso de memoria mínimo comparado con alternativas managed
 - Punteros + slices nativos
 
-* Curva de aprendizaje
+* Por qué Go? - Curva de aprendizaje
 
 - Extensa documentación disponible
 - Poca dependencia en frameworks y plataformas de terceros
 - Soporte de testing nativo
 
-* Simpleza
+* Por qué Go? - Simpleza
 
 - Lenguaje de reducida superficie sintáctica
-- Linkeo estático = !(DLL hell) - por ahora...
+- Linkeo estático
 - Poco cambalache objetoso gracias a duck typing
 - El compilador ayuda, las referencias sin uso se consideran errores
 
+* Por qué Go? - Bonus track: Comunidad
 
-* Go o no go, la cuestión
+Actualmente posee una gran comunidad de usuarios, en muchos casos empresas y startups que enriquecen el creciente ecosistema aportando implementaciones open source
 
-Como siempre, se trata de (intentar) seguir la máxima "The right tool for the right job"
+Go en producción -> [[https://github.com/golang/go/wiki/GoUsers][Link]]
 
-Go es nuestra primera opción para:
-- APIs core: Poca lógica de negocio, *muchos* requests por segundo
-- Microservicios: Multitenancia sobre nuestro storage KV
+Testimonios -> [[https://github.com/golang/go/wiki/SuccessStories][Link]]
+
+* Go vs Java - Infra
+
+Sin entrar en detalles de lenguaje, un gran diferencial en proceso de desarrollo y deploy es el requerimiento de infraestructura por parte de cada plataforma
+.image ./resources/versus.png _ 1000
+
+* Go vs Java - Infra: Consideraciones y trade-offs
+
+- Tiempos de build y test
+- Dependencias de ambiente (container y dev)
+- Instrumentación versus overhead aplicativo
+- Configurabilidad versus simpleza
+
+*Hard* *mode*: Pipeline Setup & CI -> deploy 100% automático y aplicable a _N_ instancias
+
+* To Go or not to Go
+
+Al final del día, se reduce a (intentar) seguir la máxima _"The_ _right_ _tool_ _for_ _the_ _right_ _job"_
+Para nostros en MeLi...
+
+*Go* *es* *nuestra* *opción* *preferida* *para:*
+- APIs core: Poca lógica de negocio, mucho throughput (MRPM)
+- Microservicios: Multitenancia sobre nuestro storage key-value
 - APIs cacheables: Poco uso de memoria permite masivos cache in-memory
 
-Consideramos Java en lugar de Go para:
-- Migraciones sin rediseño de sistemas "enterprise" (alias AbstractSingletonProxyFactoryBean)
-- Extensibilidad y tuneo de librerías/productos ya basados en java (Hystrix, Cassandra)
+*Consideramos* *Java* *en* *lugar* *de* *Go* *para:*
+- Extensibilidad y tuneo de librerías/productos ya basados en Java (Hystrix, Cassandra)
 - Ciertos middle-ends y orquestadores
+- Migraciones desde Grails (casi) indoloras
 
+* Un día de trabajo
+
+.image ./resources/monkeys.jpg _ 700
