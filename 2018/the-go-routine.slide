@@ -29,7 +29,7 @@ Nuevo o curioso en Go?
 
 - 8 años de Go 
 - 3 años en MeLi
-- Actualmente sirviendo millones de req/s (y en aumento!)
+- Actualmente sirviendo millones de req/min (y en aumento!)
 
 
 Cómo llegamos? Hacia dónde vamos?
@@ -539,10 +539,9 @@ Como debugger, es bastante completo y posee varios frontends:
 - [[https://github.com/derekparker/delve/tree/master/Documentation/cli][dlv]]: Es el frontend CLI oficial que viene incluído con delve 
 - [[https://github.com/aarzilli/gdlv][gdlv]]: Frontend gráfico
 
-Delve expone una [[https://godoc.org/github.com/derekparker/delve/service/rpc2][API JsonRPC]] a través de la cual se puede interactuar para implementar nuevos frontends e integraciones
+Delve expone una [[https://godoc.org/github.com/derekparker/delve/service/rpc2][API JsonRPC]] con la cual se puede interactuar para implementar nuevos frontends e integraciones
 
 *Plus*: Integraciones con las principales herramientas (IntelliJ/Goland, VS Code)
-
 
 * Tooling e IDEs: Debuggers - GDB
 
@@ -554,6 +553,39 @@ Pueden consultar la guía oficial en [[https://golang.org/doc/gdb][https://golan
 
 .image ./resources/monkeys.jpg _ 700
 
-* Un día de trabajo
+* Un día de trabajo: Las bases
 
-WIP
+- Github + gitflow: [[http://nvie.com/posts/a-successful-git-branching-model/][http://nvie.com/posts/a-successful-git-branching-model/]]
+- Deploys periódicos & hotfix. Algunos repos puntuales siguen deploys on-demand
+- Scrum laxo, no bikeshedding ni burocracia
+- Los devs también podemos hacer producto
+
+.image ./resources/simpworks.jpg _ 600
+
+* Un día de trabajo: La salsa secreta
+
+Dentro de MeLi tenemos nuestra solución in-house para DevOps automatizado, *Fury*,
+que nos simplifica el proceso de desarrollo
+
+.image ./resources/fury.png _ 400
+
+- Deploys (all-in, canary, blue-green, rolling)
+- Versionado y entregables
+- Métricas y diagnóstico
+- Infrastructure as a service (IaaS)
+
+* Un día de trabajo: Capando monos en Go
+
+- *Desarrollo*: PRs chicos, no reinventar la rueda y consumir los toolkits. No implementar como si estuviésemos en Java
+
+- *Testing*: Buscamos cobertura > 80%. Go nos enseña a no sobrediseñar. Divisiones aplicativas pequeñas y concisas = mejor capacidad de cobertura y mocking. Aprovechamos el concepto de "los clientes definen interfaces" gracias al duck typing
+
+- *Entorno*: Fury ❤ Docker. Una imagen promedio de Go solamente necesita el sdk/runtime y variables de etorno (en caso de ser necesario)
+
+- *Dependencias*: Usar vendoring nos asegura builds reproducibles y rápidos, a falta de un versionado estandar nativo en Go (aunque están [[https://research.swtch.com/vgo][trabajando en eso]]). Nuestro gestor preferido es [[https://github.com/golang/dep][Dep]], el oficial
+
+- *Troubleshooting*: Al ser más minimalista que Java y Groovy, Go puede carecer de cierta flexibilidad en cuanto a formas de instumentar diagnósticos. Métricas y logs son nuestros amigos
+
+* Preguntas?
+
+.image ./resources/questions.png _ 700
