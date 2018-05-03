@@ -9,7 +9,12 @@ Luis Gabriel Gómez - Mercadolibre
 
 .image ./resources/gowork.jpg _ 900
 
-* Nuevo o curioso en Go?
+* Links
+
+*Esta* *presentación* -> [[https://tinyurl.com/ybhetpr8][https://tinyurl.com/ybhetpr8]] 
+.image ./resources/qr.jpg _ 375
+
+Nuevo o curioso en Go?
 
 *Golang* *Basics* -> [[https://goo.gl/nC6lyn][https://goo.gl/nC6lyn]] 
 
@@ -31,7 +36,7 @@ Cómo llegamos? Hacia dónde vamos?
 
 * Intro - En perspectiva
 
-No está de mas ver la comparativa entre la edad de Go y la de algunas de las otras tecnologías que usan o han usado en MeLi: 
+No está de más hacer la comparativa entre la edad de Go y la de algunas de las otras tecnologías que usan o han usado en MeLi: 
 
 - Python: 27 años
 - PHP: 23 años 
@@ -42,7 +47,7 @@ No está de mas ver la comparativa entre la edad de Go y la de algunas de las ot
 * Por qué Go?
 
 Blogposts y forobardos en la web sobre el tema sobran...
-.image ./resources/ghangman.jpg _ 450
+.image ./resources/gohangman.jpg _ 450
 La intención de esta presentación es mostrar por qué nos ha servido a nosotros en MeLi
 
 * Por qué Go? - En MeLi
@@ -77,9 +82,9 @@ La intención de esta presentación es mostrar por qué nos ha servido a nosotro
 
 Actualmente posee una gran comunidad de usuarios, en muchos casos empresas y startups que enriquecen el creciente ecosistema aportando implementaciones open source
 
-Go en producción -> [[https://github.com/golang/go/wiki/GoUsers][Link]]
+*Go* *en* *producción* -> [[https://github.com/golang/go/wiki/GoUsers][Link]]
 
-Testimonios -> [[https://github.com/golang/go/wiki/SuccessStories][Link]]
+*Testimonios* -> [[https://github.com/golang/go/wiki/SuccessStories][Link]]
 
 * Go vs Grails - Infra
 
@@ -105,7 +110,7 @@ Dicho esto, podemos hacer una comparación básica de la infra aplicativa promed
 
 * Go vs Grails - Infra: Grails
 
-.image ./resources/infra_grails.png _ 550
+.image ./resources/infra_grails.png _ 580
 
 * Go vs Grails - Infra: Go
 
@@ -417,7 +422,7 @@ Ok, pero las APIs eran distintas!
 .image ./resources/chicken.jpg _ 300
 
 Efectivamente, aunque:
-- La devirtualización en Go es en tiempo de compilación para casos conocidos, el resto son simples indirecciones sobre interfases
+- La devirtualización en Go es en tiempo de compilación para casos conocidos y el resto son simples indirecciones sobre interfases
 - Debido a lo anterior, un diseño similar al de la API de Grails sumaría pocos stack frames (_n_ rules + _m_ de su iterador)
 
 Go es más simple, y a veces *menos* *es* *más*
@@ -427,16 +432,33 @@ Go es más simple, y a veces *menos* *es* *más*
 Al final del día, se reduce a (intentar) seguir la máxima _"The_ _right_ _tool_ _for_ _the_ _right_ _job"_
 Para nostros en MeLi...
 
+* To Go or not to Go: Go
+
 *Go* *es* *nuestra* *opción* *preferida* *para:*
 - APIs core: Poca lógica de negocio, mucho throughput (MRPM)
 - Microservicios: Multitenancia sobre nuestro storage key-value
 - Caches: Bajo overhead de memoria permite caches locales masivas
 - Yapa: Bajo nivel (middlewares tengine con CGo)
 
+.image ./resources/logo_golang.jpg _ 200
+
+* To Go or not to Go: Java
+
 *Consideramos* *Java* *en* *lugar* *de* *Go* *para:*
 - Extensibilidad y tuneo de librerías/productos ya basados en Java (Hystrix, Cassandra, Elasticsearch, etc)
 - Ciertos middle-ends y orquestadores
 - Migraciones desde Grails (un poco) menos sufridas
+
+.image ./resources/logo_java.png _ 200
+
+* To Go or not to Go: Groovy/Grails
+
+*Consideramos* *Grails* *en* *lugar* *de* *Java/Go* *para:*
+- Nada (Disclaimer: al autor no le gusta Groovy)
+
+.image ./resources/logo_groovy.jpg _ 300
+
+Hablando más en serio: APIs que se beneficien del autowiring mágico de Grails (DAOs sobre Oracle/MySQL)
 
 * Tooling e IDEs
 
@@ -444,11 +466,42 @@ Para nostros en MeLi...
 
 * Tooling e IDEs: Toolchain oficial
 
-TODO
+Go provee un extenso juego de herramientas CLI oficial para trabajar con nuestros proyectos
 
-* Tooling e IDEs: Debuggers
+Las herramientas base parten del comando _go_ e incluye las siguientes:
 
-TODO
+	build       compile packages and dependencies
+	clean       remove object files and cached files
+	doc         show documentation for package or symbol
+	env         print Go environment information
+	bug         start a bug report
+	fix         update packages to use new APIs
+	fmt         gofmt (reformat) package sources
+	generate    generate Go files by processing source
+	get         download and install packages and dependencies
+	install     compile and install packages and dependencies
+	list        list packages
+	run         compile and run Go program
+	test        test packages
+	tool        run specified go tool
+	version     print Go version
+	vet         report likely mistakes in packages
+
+* Tooling e IDEs: Toolchain oficial
+
+Otras herramientas y packages oficiales disponibles pero no incluidas en _go_ son:
+
+- [[https://github.com/google/pprof][Pprof]]: Profiler para aplicaciones go
+- [[https://godoc.org/golang.org/x/tools/present][Present]]: Parser/renderer de presentaciones
+- [[https://godoc.org/golang.org/x/tools/refactor][Refactor]]: Refactor de packages desde CLI
+- [[https://godoc.org/golang.org/x/tools/playground][Playground]]: Wrapper/proxy de go playground
+- [[https://godoc.org/golang.org/x/tools/imports][Imports]]: Manipulación de imports
+- [[https://godoc.org/golang.org/x/tools/go][Go]]: Componentes del compilador de Go
+
+Pueden ver la lista completa en:
+
+- CLIs: [[https://godoc.org/golang.org/x/tools/cmd][https://godoc.org/golang.org/x/tools/cmd]] 
+- Packages: [[https://godoc.org/golang.org/x/tools][https://godoc.org/golang.org/x/tools]]
 
 * Tooling e IDEs: Principales herramientas para desarrollo
 
@@ -464,10 +517,43 @@ TODO
 - [[https://www.jetbrains.com/go/][Goland - IntelliJ versión Go]]
 - [[https://github.com/visualfc/liteide][Lite IDE]]
 
-El boca-river en MeLi es entre Visual Studio Code e IntelliJ (ambas son opciones muy sólidas)
+El Boca-River en MeLi es entre Visual Studio Code e IntelliJ (ambas son opciones muy sólidas)
 
 Para una lista más exhaustiva ver [[https://github.com/golang/go/wiki/IDEsAndTextEditorPlugins][la wiki de Go]]
+
+* Tooling e IDEs: Debuggers
+
+Actualmente tenemos 2 alternativas (y un difunto):
+
+- Delve
+- GDB
+- Godebug - deprecado
+
+* Tooling e IDEs: Debuggers - Delve
+[[https://github.com/derekparker/delve][https://github.com/derekparker/delve]]
+
+Es el estándar defacto y sucesor de [[https://github.com/mailgun/godebug][godebug]]
+
+Como debugger, es bastante completo y posee varios frontends:
+
+- [[https://github.com/derekparker/delve/tree/master/Documentation/cli][dlv]]: Es el frontend CLI oficial que viene incluído con delve 
+- [[https://github.com/aarzilli/gdlv][gdlv]]: Frontend gráfico
+
+Delve expone una [[https://godoc.org/github.com/derekparker/delve/service/rpc2][API JsonRPC]] a través de la cual se puede interactuar para implementar nuevos frontends e integraciones
+
+*Plus*: Integraciones con las principales herramientas (IntelliJ/Goland, VS Code)
+
+
+* Tooling e IDEs: Debuggers - GDB
+
+Hay soporte limitado para usar GDB con Go, aunque sin embargo es posible (considerando que no haya otra opción disponible)
+
+Pueden consultar la guía oficial en [[https://golang.org/doc/gdb][https://golang.org/doc/gdb]]
 
 * Un día de trabajo
 
 .image ./resources/monkeys.jpg _ 700
+
+* Un día de trabajo
+
+WIP
