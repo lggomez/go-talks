@@ -417,13 +417,13 @@ Terminó en el slide anterior
 
 * Go vs Grails - Concluyendo
 
-Ok, pero las APIs eran distintas!
+Momento, las APIs y call sites son distintos!
 
 .image ./resources/chicken.jpg _ 300
 
-Efectivamente, aunque:
-- La devirtualización en Go es en tiempo de compilación para casos conocidos; un diseño similar al de la API de Grails sumaría pocos stack frames
-- La mayor parte del overhead proviene de Gin, por lo cual el conteo de stack frames extra en código de servicios puro sería 1:1
+*Efectivamente,* *aunque...*
+- ...la devirtualización en Go es en tiempo de compilación para casos conocidos; un diseño similar al de la API de Grails sumaría pocos stack frames aplicativos
+- ...la mayor parte del overhead proviene de Gin, por lo cual el conteo de stack frames extra en código de servicios puro sería 1:1
 
 Go es más simple, y a veces *menos* *es* *más*
 
