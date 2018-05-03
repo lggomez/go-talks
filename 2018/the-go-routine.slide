@@ -422,8 +422,8 @@ Ok, pero las APIs eran distintas!
 .image ./resources/chicken.jpg _ 300
 
 Efectivamente, aunque:
-- La devirtualización en Go es en tiempo de compilación para casos conocidos y el resto son simples indirecciones sobre interfases
-- Debido a lo anterior, un diseño similar al de la API de Grails sumaría pocos stack frames (_n_ rules + _m_ de su iterador)
+- La devirtualización en Go es en tiempo de compilación para casos conocidos; un diseño similar al de la API de Grails sumaría pocos stack frames
+- La mayor parte del overhead proviene de Gin, por lo cual el conteo de stack frames extra en código de servicios puro sería 1:1
 
 Go es más simple, y a veces *menos* *es* *más*
 
