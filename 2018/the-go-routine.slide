@@ -7,13 +7,13 @@ Luis Gabriel Gómez - Mercadolibre
 
 * 
 
-.image ./resources/gopherswrench.jpg _ 900
+.image ./resources/gowork.jpg _ 900
 
 * Nuevo o curioso en Go?
 
 *Golang* *Basics* -> [[https://goo.gl/nC6lyn][https://goo.gl/nC6lyn]] 
 
-* Indice
+* Índice
 
 - Por qué Go?
 - To Go or not to Go
@@ -39,14 +39,6 @@ No está de mas ver la comparativa entre la edad de Go y la de algunas de las ot
 - Grails: 12 años
 - NodeJS: 8 años
 
-* Intro - Algunas preguntas
-
-- Por qué Go?
-- Go vs Java - Infra
-- To Go or not to Go, la cuestión
-- Cómo lo usamos?
-- Cómo trabajamos?
-
 * Por qué Go?
 
 Blogposts y forobardos en la web sobre el tema sobran...
@@ -66,6 +58,7 @@ La intención de esta presentación es mostrar por qué nos ha servido a nosotro
 - Compilación rápida, linkeo estático por defecto (y dynlink a partir de 1.5)
 - Uso de memoria mínimo comparado con alternativas managed
 - Punteros + slices nativos
+- Para los valientes: Interoperabilidad nativa con C
 
 * Por qué Go? - Curva de aprendizaje
 
@@ -88,12 +81,12 @@ Go en producción -> [[https://github.com/golang/go/wiki/GoUsers][Link]]
 
 Testimonios -> [[https://github.com/golang/go/wiki/SuccessStories][Link]]
 
-* Go vs Java - Infra
+* Go vs Grails - Infra
 
-Sin entrar en detalles de lenguaje, un gran diferencial en proceso de desarrollo y deploy es el requerimiento de infraestructura por parte de cada plataforma
+Un gran diferencial en proceso de desarrollo y deploy es el requerimiento de infraestructura por parte de cada plataforma
 .image ./resources/versus.png _ 1000
 
-* Go vs Java - Infra: Consideraciones y trade-offs
+* Go vs Grails - Infra: Consideraciones y trade-offs
 
 - Tiempos de build y test
 - Dependencias de ambiente (container y dev)
@@ -102,19 +95,332 @@ Sin entrar en detalles de lenguaje, un gran diferencial en proceso de desarrollo
 
 *Hard* *mode*: Pipeline Setup & CI -> deploy 100% automático y aplicable a _N_ instancias
 
-Dicho esto, podemos hacer una comparación básica de la infra aplicativa promedio utilizada por una api en Java y Go
+* Go vs Grails
 
-* Go vs Java - Infra: Java
+Dicho esto, podemos hacer una comparación básica de la infra aplicativa promedio utilizada por una API en Grails y Go. Los diseños de servicios no necesariamente deben coincidir
+
+* Go vs Grails - Infra: Java
 
 .image ./resources/infra_java.png _ 650
 
-* Go vs Java - Infra: Grails (bonus track)
+* Go vs Grails - Infra: Grails
 
 .image ./resources/infra_grails.png _ 550
 
-* Go vs Java - Infra: Go
+* Go vs Grails - Infra: Go
 
 .image ./resources/infra_go.png _ 550
+
+* Go vs Grails - Juegos mentales: Grails stacktrace
+
+Un stacktrace vale más que mil printf. Veamos qué hace cada API
+
+	at sun.misc.Unsafe.park(Unsafe.java:-1)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:186)
+	at java.util.concurrent.FutureTask.awaitDone(FutureTask.java:425)
+	at java.util.concurrent.FutureTask.get(FutureTask.java:187)
+	at java_util_concurrent_Future$get.call(Unknown Source:-1)
+	at meliapi.commands.ApiCommand.get(ApiCommand.groovy:28)
+	at meliapi.commands.ApiCommand$get.call(Unknown Source:-1)
+	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:112)
+	at meliapi.core.steps.BusinessRulesService.iterateRule(BusinessRulesService.groovy:62)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:-1)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:90)
+	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:233)
+	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1086)
+	at groovy.lang.ExpandoMetaClass.invokeMethod(ExpandoMetaClass.java:1110)
+	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:910)
+	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1031)
+	at groovy.lang.ExpandoMetaClass.invokeMethod(ExpandoMetaClass.java:1110)
+
+* 
+
+Esto se va a poner feo
+
+	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:910)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaClassSite.callCurrent(PogoMetaClassSite.java:66)
+	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCallCurrent(CallSiteArray.java:49)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:133)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:153)
+	at meliapi.core.steps.BusinessRulesService$_iterateRules_closure8.doCall(BusinessRulesService.groovy:115)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:-1)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:90)
+	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:233)
+	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1086)
+	at groovy.lang.ExpandoMetaClass.invokeMethod(ExpandoMetaClass.java:1110)
+	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:910)
+	at groovy.lang.Closure.call(Closure.java:411)
+	at groovy.lang.Closure.call(Closure.java:427)
+	at org.codehaus.groovy.runtime.DefaultGroovyMethods.collect(DefaultGroovyMethods.java:2202)
+	at org.codehaus.groovy.runtime.DefaultGroovyMethods.collect(DefaultGroovyMethods.java:2172)
+	at org.codehaus.groovy.runtime.dgm$60.invoke(Unknown Source:-1)
+
+* 
+
+Bien, parece que ya tenemos algo de lógica de negocio
+(ejercicio para el lector: encontrarla)
+
+	at org.codehaus.groovy.runtime.callsite.PojoMetaMethodSite$PojoMetaMethodSiteNoUnwrapNoCoerce.invoke(PojoMetaMethodSite.java:271)
+	at org.codehaus.groovy.runtime.callsite.PojoMetaMethodSite.call(PojoMetaMethodSite.java:53)
+	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:116)
+	at meliapi.core.steps.BusinessRulesService.iterateRules(BusinessRulesService.groovy:109)
+	at meliapi.core.steps.BusinessRulesService$iterateRules.callCurrent(Unknown Source:-1)
+	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCallCurrent(CallSiteArray.java:49)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:133)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:153)
+	at meliapi.core.steps.BusinessRulesService.iterateOptions(BusinessRulesService.groovy:139)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:-1)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:90)
+	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:233)
+	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1086)
+	at groovy.lang.ExpandoMetaClass.invokeMethod(ExpandoMetaClass.java:1110)
+	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:910)
+
+* 
+
+Algo más de magia sintáctica con una pizca de servicio de negocio
+
+	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1031)
+	at groovy.lang.ExpandoMetaClass.invokeMethod(ExpandoMetaClass.java:1110)
+	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:910)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaClassSite.callCurrent(PogoMetaClassSite.java:66)
+	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCallCurrent(CallSiteArray.java:49)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:133)
+	at meliapi.core.steps.BusinessRulesService$_closure2.doCall(BusinessRulesService.groovy:28)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:-1)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:90)
+	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:233)
+	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1086)
+	at groovy.lang.ExpandoMetaClass.invokeMethod(ExpandoMetaClass.java:1110)
+	at groovy.lang.MetaClassImpl.invokePropertyOrMissing(MetaClassImpl.java:1125)
+	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1088)
+	at groovy.lang.ExpandoMetaClass.invokeMethod(ExpandoMetaClass.java:1110)
+	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:910)
+	at org.codehaus.groovy.runtime.callsite.PojoMetaClassSite.call(PojoMetaClassSite.java:44)
+
+* 
+
+Como podemos apreciar, la devirtualización es 100% (o 99%...?) hecha de forma aplicativa (gracias Groovy)
+
+	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:120)
+	at meliapi.BusinessService.getCartOptionsMap(BusinessService.groovy:221)
+	at meliapi.BusinessService$getCartOptionsMap$6.callCurrent(Unknown Source:-1)
+	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCallCurrent(CallSiteArray.java:49)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:133)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:145)
+	at meliapi.BusinessService.getCartShipmentData(BusinessService.groovy:97)
+	at meliapi.BusinessService$getCartShipmentData.call(Unknown Source:-1)
+	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:120)
+	at meliapi.BusinessLogicService$_closure3.doCall(BusinessLogicService.groovy:40)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:-1)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:272)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.call(PogoMetaMethodSite.java:64)
+
+* 
+
+Genial, ya logramos ver el controller de esta API 
+
+	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:120)
+	at meliapi.BusinessLogicService.getCartData(BusinessLogicService.groovy:146)
+	at meliapi.BusinessLogicService.getCartData(BusinessLogicService.groovy:-1)
+	at meliapi.BusinessLogicService$getCartData.call(Unknown Source:-1)
+	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:108)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:120)
+	at meliapi.BusinessController.getCart(BusinessController.groovy:30)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:-1)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.codehaus.groovy.grails.web.servlet.mvc.MixedGrailsControllerHelper.invoke(MixedGrailsControllerHelper.java:154)
+	at org.codehaus.groovy.grails.web.servlet.mvc.AbstractGrailsControllerHelper.handleAction(AbstractGrailsControllerHelper.java:354)
+	at org.codehaus.groovy.grails.web.servlet.mvc.AbstractGrailsControllerHelper.executeAction(AbstractGrailsControllerHelper.java:231)
+	at org.codehaus.groovy.grails.web.servlet.mvc.AbstractGrailsControllerHelper.handleURI(AbstractGrailsControllerHelper.java:197)
+	at org.codehaus.groovy.grails.web.servlet.mvc.AbstractGrailsControllerHelper.handleURI(AbstractGrailsControllerHelper.java:121)
+	at org.codehaus.groovy.grails.web.servlet.mvc.SimpleGrailsController.handleRequest(SimpleGrailsController.java:72)
+
+* 
+
+Según un estudio de la universidad Queen Mary, las cabras tienen acentos individuales
+
+	at org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter.handle(SimpleControllerHandlerAdapter.java:48)
+	at org.codehaus.groovy.grails.web.servlet.GrailsDispatcherServlet.doDispatch(GrailsDispatcherServlet.java:355)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:851)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:953)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:855)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:646)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:829)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:727)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:303)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:208)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:52)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:241)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:208)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:100)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:241)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:208)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:100)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:241)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:208)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:100)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:241)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:208)
+	at org.apache.catalina.core.ApplicationDispatcher.invoke(ApplicationDispatcher.java:748)
+
+* 
+
+Les presento a una amiga: Catalina (alias Tomcat)
+
+	at org.apache.catalina.core.ApplicationDispatcher.processRequest(ApplicationDispatcher.java:486)
+	at org.apache.catalina.core.ApplicationDispatcher.doForward(ApplicationDispatcher.java:411)
+	at org.apache.catalina.core.ApplicationDispatcher.forward(ApplicationDispatcher.java:338)
+	at org.codehaus.groovy.grails.web.util.WebUtils.forwardRequestForUrlMappingInfo(WebUtils.java:332)
+	at org.codehaus.groovy.grails.web.util.WebUtils.forwardRequestForUrlMappingInfo(WebUtils.java:297)
+	at org.codehaus.groovy.grails.web.util.WebUtils.forwardRequestForUrlMappingInfo(WebUtils.java:288)
+	at org.codehaus.groovy.grails.web.mapping.filter.UrlMappingsFilter.doFilterInternal(UrlMappingsFilter.java:217)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:106)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:241)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:208)
+	at org.codehaus.groovy.grails.web.sitemesh.GrailsPageFilter.executeFilterChainWithWrappedResponse(GrailsPageFilter.java:233)
+	at org.codehaus.groovy.grails.web.sitemesh.GrailsPageFilter.obtainContent(GrailsPageFilter.java:208)
+	at org.codehaus.groovy.grails.web.sitemesh.GrailsPageFilter.doFilter(GrailsPageFilter.java:153)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:241)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:208)
+	at org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequestFilter.doFilterInternal(GrailsWebRequestFilter.java:69)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:106)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:241)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:208)
+	at org.codehaus.groovy.grails.web.filters.HiddenHttpMethodFilter.doFilterInternal(HiddenHttpMethodFilter.java:67)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:106)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:241)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:208)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:88)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:106)
+
+* 
+
+Y llegamos al final. Me quedé sin ideas para acotar 
+
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:343)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:260)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:241)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:208)
+	at com.meli.businessFilter.Public2PrivateFilter.doFilter(Public2PrivateFilter.java:119)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:241)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:208)
+	at com.jsonp.filters.JsonpFilter.doFilter(JsonpFilter.java:71)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:241)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:208)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:220)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:122)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:170)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:98)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:116)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:408)
+	at org.apache.coyote.http11.AbstractHttp11Processor.process(AbstractHttp11Processor.java:1040)
+	at org.apache.coyote.AbstractProtocol$AbstractConnectionHandler.process(AbstractProtocol.java:607)
+	at org.apache.tomcat.util.net.JIoEndpoint$SocketProcessor.run(JIoEndpoint.java:313)
+	- locked <0x529b> (a org.apache.tomcat.util.net.SocketWrapper)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+
+* Go vs Java - Go stacktrace
+
+	apierrors.apiErr: Message: Oops! Something went wrong...;Error Code: internal_server_error;Status: 500;Cause: []
+	/go/src/github.com/mercadolibre/meli-api/src/api/vendor/github.com/mercadolibre/go-meli-toolkit/gingonic/mlhandlers/commonapi.go (mlhandlers.handleInternalServerError:145)
+	/go/src/github.com/mercadolibre/meli-api/src/api/vendor/github.com/mercadolibre/go-meli-toolkit/gingonic/mlhandlers/commonapi.go (mlhandlers.(*customWritter).Write:97)
+	/go/src/github.com/mercadolibre/meli-api/src/api/vendor/github.com/gin-gonic/gin/render/json.go (render.WriteJSON:41)
+	/go/src/github.com/mercadolibre/meli-api/src/api/vendor/github.com/gin-gonic/gin/render/json.go (render.JSON.Render:25)
+	<autogenerated> (render.(*JSON).Render:1)
+	/go/src/github.com/mercadolibre/meli-api/src/api/vendor/github.com/gin-gonic/gin/context.go (gin.(*Context).Render:596)
+	/go/src/github.com/mercadolibre/meli-api/src/api/vendor/github.com/gin-gonic/gin/context.go (gin.(*Context).JSON:620)
+	/go/src/github.com/mercadolibre/meli-api/src/api/controllers/businessController.go (controllers.GetData:97)
+	/go/src/github.com/mercadolibre/meli-api/src/api/vendor/github.com/gin-gonic/gin/context.go (gin.(*Context).Next:104)
+	/go/src/github.com/mercadolibre/meli-api/src/api/vendor/github.com/mercadolibre/go-meli-toolkit/gingonic/mlhandlers/recovery.go (mlhandlers.RecoveryWithWriter.func1:46)
+	/go/src/github.com/mercadolibre/meli-api/src/api/vendor/github.com/gin-gonic/gin/context.go (gin.(*Context).Next:104)
+	/go/src/github.com/mercadolibre/meli-api/src/api/vendor/github.com/mercadolibre/go-meli-toolkit/gingonic/mlhandlers/commonapi.go (mlhandlers.CommonAPiFilter.func1:47)
+	/go/src/github.com/mercadolibre/meli-api/src/api/vendor/github.com/gin-gonic/gin/context.go (gin.(*Context).Next:104)
+	/go/src/github.com/mercadolibre/meli-api/src/api/vendor/github.com/newrelic/go-agent/_integrations/nrgin/v1/nrgin.go (v1.Middleware.func1:97)
+	/go/src/github.com/mercadolibre/meli-api/src/api/vendor/github.com/gin-gonic/gin/context.go (gin.(*Context).Next:104)
+	/go/src/github.com/mercadolibre/meli-api/src/api/vendor/github.com/mercadolibre/go-meli-toolkit/gingonic/mlhandlers/mlmetrics.go (mlhandlers.Datadog.func1:19)
+	/go/src/github.com/mercadolibre/meli-api/src/api/vendor/github.com/gin-gonic/gin/context.go (gin.(*Context).Next:104)
+	/go/src/github.com/mercadolibre/meli-api/src/api/vendor/github.com/gin-gonic/gin/gin.go (gin.(*Engine).handleHTTPRequest:332)
+	/go/src/github.com/mercadolibre/meli-api/src/api/vendor/github.com/gin-gonic/gin/gin.go (gin.(*Engine).ServeHTTP:296)
+	/usr/local/go/src/net/http/server.go (http.serverHandler.ServeHTTP:2619)
+	/usr/local/go/src/net/http/server.go (http.(*conn).serve:1801)
+	/usr/local/go/src/runtime/asm_amd64.s (runtime.goexit:2337)
+
+* 
+
+Terminó en el slide anterior
+
+* 
+
+.image ./resources/bueno.jpeg _ 500
+
+* Go vs Grails - Go stacktrace (paths simplificados)
+
+	apierrors.apiErr: Message: Oops! Something went wrong...;Error Code: internal_server_error;Status: 500;Cause: []
+	**PACKAGE**/src/api/**TOOLKIT**/gingonic/mlhandlers/commonapi.go (mlhandlers.handleInternalServerError:145)
+	**PACKAGE**/src/api/**TOOLKIT**/gingonic/mlhandlers/commonapi.go (mlhandlers.(*customWritter).Write:97)
+	**PACKAGE**/src/api/**VENDOR**/gin-gonic/gin/render/json.go (render.WriteJSON:41)
+	**PACKAGE**/src/api/**VENDOR**/gin-gonic/gin/render/json.go (render.JSON.Render:25)
+	<autogenerated> (render.(*JSON).Render:1)
+	**PACKAGE**/src/api/**VENDOR**/gin-gonic/gin/context.go (gin.(*Context).Render:596)
+	**PACKAGE**/src/api/**VENDOR**/gin-gonic/gin/context.go (gin.(*Context).JSON:620)
+	**PACKAGE**/src/api/controllers/businessController.go (controllers.GetData:97)
+	**PACKAGE**/src/api/**VENDOR**/gin-gonic/gin/context.go (gin.(*Context).Next:104)
+	**PACKAGE**/src/api/**TOOLKIT**/gingonic/mlhandlers/recovery.go (mlhandlers.RecoveryWithWriter.func1:46)
+	**PACKAGE**/src/api/**VENDOR**/gin-gonic/gin/context.go (gin.(*Context).Next:104)
+	**PACKAGE**/src/api/**TOOLKIT**/gingonic/mlhandlers/commonapi.go (mlhandlers.CommonAPiFilter.func1:47)
+	**PACKAGE**/src/api/**VENDOR**/gin-gonic/gin/context.go (gin.(*Context).Next:104)
+	**PACKAGE**/src/api/**VENDOR**/newrelic/go-agent/_integrations/nrgin/v1/nrgin.go (v1.Middleware.func1:97)
+	**PACKAGE**/src/api/**VENDOR**/gin-gonic/gin/context.go (gin.(*Context).Next:104)
+	**PACKAGE**/src/api/**TOOLKIT**/gingonic/mlhandlers/mlmetrics.go (mlhandlers.Datadog.func1:19)
+	**PACKAGE**/src/api/**VENDOR**/gin-gonic/gin/context.go (gin.(*Context).Next:104)
+	**PACKAGE**/src/api/**VENDOR**/gin-gonic/gin/gin.go (gin.(*Engine).handleHTTPRequest:332)
+	**PACKAGE**/src/api/**VENDOR**/gin-gonic/gin/gin.go (gin.(*Engine).ServeHTTP:296)
+	/usr/local/go/src/net/http/server.go (http.serverHandler.ServeHTTP:2619)
+	/usr/local/go/src/net/http/server.go (http.(*conn).serve:1801)
+	/usr/local/go/src/runtime/asm_amd64.s (runtime.goexit:2337)
+
+* Go vs Grails - Concluyendo
+
+Ok, pero las APIs eran distintas!
+
+.image ./resources/chicken.jpg _ 300
+
+Efectivamente, aunque:
+- La devirtualización en Go es en tiempo de compilación para casos conocidos, el resto son simples indirecciones sobre interfases
+- Debido a lo anterior, un diseño similar al de la API de Grails sumaría pocos stack frames (_n_ rules + _m_ de su iterador)
+
+Go es más simple, y a veces *menos* *es* *más*
 
 * To Go or not to Go
 
@@ -124,12 +430,43 @@ Para nostros en MeLi...
 *Go* *es* *nuestra* *opción* *preferida* *para:*
 - APIs core: Poca lógica de negocio, mucho throughput (MRPM)
 - Microservicios: Multitenancia sobre nuestro storage key-value
-- APIs cacheables: Poco uso de memoria permite masivos cache in-memory
+- Caches: Bajo overhead de memoria permite caches locales masivas
+- Yapa: Bajo nivel (middlewares tengine con CGo)
 
 *Consideramos* *Java* *en* *lugar* *de* *Go* *para:*
-- Extensibilidad y tuneo de librerías/productos ya basados en Java (Hystrix, Cassandra)
+- Extensibilidad y tuneo de librerías/productos ya basados en Java (Hystrix, Cassandra, Elasticsearch, etc)
 - Ciertos middle-ends y orquestadores
-- Migraciones desde Grails (casi) indoloras
+- Migraciones desde Grails (un poco) menos sufridas
+
+* Tooling e IDEs
+
+.image ./resources/gopherswrench.jpg _ 700
+
+* Tooling e IDEs: Toolchain oficial
+
+TODO
+
+* Tooling e IDEs: Debuggers
+
+TODO
+
+* Tooling e IDEs: Principales herramientas para desarrollo
+
+*Plugins*
+- [[https://github.com/joefitzgerald/go-plus][Atom: go-plus]]
+- [[https://goclipse.github.io][Eclipse]]
+- [[https://plugins.jetbrains.com/plugin/?id=5047][IntelliJ]]
+- [[https://github.com/fatih/vim-go][Vim: vim-go]]
+- [[https://github.com/DisposaBoy/GoSublime][Sublime: go-sublime]]
+- [[https://github.com/Microsoft/vscode-go][Visual Studio Code: vscode-go]]
+
+*IDEs* *standalone*
+- [[https://www.jetbrains.com/go/][Goland - IntelliJ versión Go]]
+- [[https://github.com/visualfc/liteide][Lite IDE]]
+
+El boca-river en MeLi es entre Visual Studio Code e IntelliJ (ambas son opciones muy sólidas)
+
+Para una lista más exhaustiva ver [[https://github.com/golang/go/wiki/IDEsAndTextEditorPlugins][la wiki de Go]]
 
 * Un día de trabajo
 
