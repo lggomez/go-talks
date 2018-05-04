@@ -24,6 +24,7 @@ Nuevo o curioso en Go?
 - To Go or not to Go
 - Tooling e IDEs
 - Un día de trabajo
+- Resultados
 
 * Intro - En retrospectiva
 
@@ -585,6 +586,19 @@ que nos simplifica el proceso de desarrollo
 - *Dependencias*: Usar vendoring nos asegura builds reproducibles y rápidos, a falta de un versionado estandar nativo en Go (aunque están [[https://research.swtch.com/vgo][trabajando en eso]]). Nuestro gestor preferido es [[https://github.com/golang/dep][Dep]], el oficial
 
 - *Troubleshooting*: Al ser más minimalista que Java y Groovy, Go puede carecer de cierta flexibilidad en cuanto a formas de instumentar diagnósticos. Métricas y logs son nuestros amigos
+
+* Resultados: Addresses API - Response time (pre-migración, 24 instancias)
+
+.image ./resources/read_ow.png _ 1000
+
+* Resultados: Addresses API - Response time (post-migración, 15 instancias)
+
+.image ./resources/read_gz.png _ 1000
+
+* Resultados: Addresses API - Memoria (métricas legacy vs métricas Fury)
+
+.image ./resources/mem_comp.png _ 1000
+
 
 * Preguntas?
 
