@@ -587,21 +587,17 @@ que nos simplifica el proceso de desarrollo
 
 - *Troubleshooting*: Al ser más minimalista que Java y Groovy, Go puede carecer de cierta flexibilidad en cuanto a formas de instumentar diagnósticos. Métricas y logs son nuestros amigos
 
-* Resultados: Addresses API - Response time (pre-migración, 24 instancias)
+* Resultados
 
-.image ./resources/read_ow.png _ 1000
+.image ./resources/comp1.png _ 1000
 
-* Resultados: Addresses API - Response time (post-migración, 15 instancias)
+* Resultados
 
-.image ./resources/read_gz.png _ 1000
+.image ./resources/comp2.png _ 1000
 
-~60% menos de response time, ~60% màs de tráfico, ~40% menos de instancias
+* Resultados
 
-* Resultados: Addresses API - Memoria (métricas legacy vs Fury)
-
-.image ./resources/mem_comp.png _ 1000
-
-*Nota:* El flavor de instancia del pool legacy difiere al de Fury, y la cota superior del heap de la JVM viene configurada
+.image ./resources/comp3.png _ 1000
 
 * Preguntas?
 
