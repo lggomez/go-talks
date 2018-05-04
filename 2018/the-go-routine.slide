@@ -572,7 +572,7 @@ que nos simplifica el proceso de desarrollo
 
 - Deploys (all-in, canary, blue-green, rolling)
 - Versionado y entregables
-- Métricas y diagnóstico
+- Métricas, diagnóstico, logs
 - Infrastructure as a service (IaaS)
 
 * Un día de trabajo: Capando monos en Go
