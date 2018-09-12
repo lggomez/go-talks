@@ -1,0 +1,236 @@
+Go - Data Types Avanzados
+
+Struct embedding, tags y JSON
+
+Luis Gabriel Gómez - Mercadolibre
+
+* Struct embedding
+
+Los tipos struct, por especificación, soportan campos declarados con tipo pero sin nombre: *Embedded* *fields* (campos embebidos)
+
+Ejemplo base (especificación de Go):
+
+    // Struct con campos embebidos de tipos T1, *T2, P.T3 y *P.T4
+    struct {
+        T1        // nombre de campo T1
+        *T2       // nombre de campo T2
+        P.T3      // nombre de campo T3
+        *P.T4     // nombre de campo T4
+        x, y int  // nombres de campos x, y
+    }
+
+El compilador resolverá el nombre del campo con el nombre del tipo al cual apunta...
+
+* Struct embedding (cont.)
+
+Por lo cual no se permiten duplicados
+
+Siguiendo la especificación:
+
+    struct {
+        T     // colisiona con campo embebido *T and *P.T
+        *T    // colisiona con campo embebido T and *P.T
+        *P.T  // colisiona con campo embebido T and *T
+    }
+
+A su vez, los campos embedded deben apuntar hacia un nombre de tipo `T` o a un puntero de un tipo no interfaz de nombre `*T`. Adicionalmente, `T` no debe ser un puntero
+
+* Struct embedding (cont.)
+
+Los campos y métodos correspondientes al campo embebido se pueden acceder de forma limitada, y se denominan campos promovidos
+
+- Y la limitación?
+No se pueden especificar campos embebidos como parte de literales compuestos (es decir, literales de structs) a menos que se especifiquen todos los campos
+
+*Bonus* *track*: Como consecuencia de lo visto, a través de un tipo `S` con un campo embebido de tipo `T`, `S` tendrá visibilidad del [[https://golang.org/ref/spec#Method_sets][method set]] de `T`
+
+* Struct embedding - Ejemplo
+
+Definiendo tipos:
+
+    type Metric struct {
+        Source  string
+        Name    string
+        Values  []string
+    }
+
+    func (m Metric) String() string {
+        return fmt. Sprintf("%v", m.Values)
+    }
+
+    type TrafficMetric struct {
+        Metric
+        AddrFrom    string
+        AddrTo      string
+        StatusCode  int
+    }
+
+* Struct embedding - Ejemplo
+
+`TrafficMetric` embebe el tipo `Metric`, se puede decir que `TrafficMetric` cumple la relación _es_
+
+Go no implementa un modelo de herencia explícito, pero usando (_criteriosamente_) esta definición podemos lograr un comportamiento similar
+
+Criteriosamente? Si, puntualmente:
+- No reinventar la rueda
+- No sobrediseñar
+- No emular herencia múltiple
+
+* Struct embedding - Ejemplo
+
+    func main() {
+        // Instancia default
+        t1 := TrafficMetric{}
+
+        // Instancia con literal parcial (solo TrafficMetric)
+        t2 := TrafficMetric{
+            AddrFrom: "from",
+            AddrTo:   "to",
+        }
+
+        // Instancia con literal completo
+        t3 := TrafficMetric{
+            Metric:     Metric{Source: "foo", Name: "name", Values: []string{"v1", "v2"}},
+            AddrFrom:   "from",
+            AddrTo:     "to",
+            StatusCode: 200,
+        }
+
+        // Invalido: No se puede acceder un campo promovido desde un literal
+        //t4 := TrafficMetric{Source:"from", AddrFrom: "from", AddrTo: "to", StatusCode: 200} -Invalid
+
+        fmt.Print("asd", t1, t2, t3.String())
+    }
+
+* Tags
+
+Go soporta de manera nativa anotaciones en los campos de un struct, denominados *tags*:
+
+Siguiendo la especificación:
+
+    struct {
+        x, y float64 ""  // un tag vacío equivale a uno ausente
+        name string  "cualquier string es un tag valido"
+        _    [4]byte "ceci n'est pas un champ de structure"
+    }
+
+
+* Tags (cont.)
+
+Un tag puede ser cualquier string literal, el cual se convertirá en atributo para todos los campos en la respectiva declaración
+
+También incluye soporte de metadatos por package bajo el siguiente formato:
+
+    type T struct {
+        t0 string `key1:"value1" key2:"value2" key3:"value3"`
+        t1 string `key1bis:"value1bis"`
+    }
+
+La stdlib hace uso extensivo de tags para funcionalidades provistas en ciertos packages
+
+* Tags (cont.)
+
+Los tags se acceden mediante reflection:
+
+    package main
+
+    import (
+        "fmt"
+        "reflect"
+    )
+
+    type T struct {
+        Foo     string "foo_tag"
+    }
+
+    func main() {
+        t := reflect.TypeOf(T{})
+        fooVal, _ := t.FieldByName("Foo")
+        fmt.Println(fooVal.Tag) // foo_tag
+    }
+
+Que usos le podemos dar a esta funcionalidad?
+
+* JSON
+
+Go tiene soporte nativo para JSON? 
+
+*Ni*
+
+
+A fines prácticos sí, pero es suma de 2 funcionalidades:
+- Tags
+- El package JSON de la stdlib (`encoding/json`) resuelve configuraciones de marshalling en los structs mediante tags
+
+* JSON (cont.)
+
+Los diferentes tags los podemos ver en la implementación base de json:
+
+    // Field appears in JSON as key "myName".
+    Field int `json:"myName"`
+
+    // Field appears in JSON as key "myName" and
+    // the field is omitted from the object if its value is empty,
+    // as defined above.
+    Field int `json:"myName,omitempty"`
+
+    // Field appears in JSON as key "Field" (the default), but
+    // the field is skipped if empty.  Note the leading comma.
+    Field int `json:",omitempty"`
+
+    // Field is ignored by this package.
+    Field int `json:"-"`
+
+    // Field appears in JSON as key "-".
+    Field int `json:"-,"`
+
+    // Field appears in JSON as string (only string, floating point, integer, or boolean types)
+    Int64String int64 `json:",string"`
+
+* JSON - Notas
+
+- Los campos privados no se serializan, debido a que reflect no puede acceder campos no exportados
+- La stdlib trata de ser fiel a ES6 en cuanto a serialización numérica, por cuestiones de compatibilidad con frontends
+- Los campos embebidos son soportados, se serializarán todos los campos promovidos. Sin embargo, si se le asigna un tag al mismo campo embebido, los campos promovidos se anidarán dentro de ese tag
+- El package JSON es muy flexible, haciendo el marshalling por defecto a `[]byte` (respetando la interfaz `Marshall`) y permitiendo cualquier `io.Writer` como output
+
+* JSON - Ejemplo: marshalling default
+
+    package main
+
+    import (
+        "encoding/json"
+        "fmt"
+    )
+
+    type KeyValue struct {
+        Key   int
+        Value string
+    }
+
+    func main() {
+        kv := KeyValue{Key: 1, Value: "foo"}
+        b, _ := json.Marshal(kv)
+        fmt.Print(string(b))
+    }
+
+* JSON - Ejemplo: marshalling con tags
+
+    package main
+
+    import (
+        "encoding/json"
+        "fmt"
+    )
+
+    type KeyValue struct {
+        Key   int `json:"k,string"`
+        Value string `json:"v"`
+        StructID string `json:"-"`
+    }
+
+    func main() {
+        kv := KeyValue{Key: 1, Value: "foo", StructID: "3497d92471f59206"}
+        b, _ := json.Marshal(kv)
+        fmt.Print(string(b))
+    }
