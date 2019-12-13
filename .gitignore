@@ -22,3 +22,7 @@ _testmain.go
 *.exe
 *.test
 *.prof
+
+2019/.DS_Store
+
+.DS_Store

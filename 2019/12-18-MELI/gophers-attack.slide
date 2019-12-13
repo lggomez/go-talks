@@ -1,0 +1,322 @@
+Cuando los gophers atacan
+Diagnosticando issues a gran escala
+18 Dec 2019
+
+Luis Gabriel Gómez
+Mercado Pago - Core Services
+
+https://github.com/lggomez
+
+* Las soluciones escalan, los problemas también
+
+En la medida que la escala y distribución de un sistema crece, el nivel de incertidumbre de sus bugs también:
+
+- Trazabilidad: Qué pasó?
+- Reproducibilidad: Cómo pasó?
+- Modelo: Era un caso erróneo o patológico?
+- Resiliencia: Propagar o morir en el intento?
+
+* Todos los happy paths llevan a un bug
+
+.image ./resources/all-roads.jpg _ 700
+
+Las historias de éxito no dejan de resultar atractivas, pero qué pasa cuando se presenta un problema?
+
+Detrás de cada éxito siempre hay un bug (o varios) 
+
+* Issues: Real life
+
+.image ./resources/real-life.jpg _ 900
+
+* En vida real: haciendo un happy path
+
+Para poder servir cumplir con nuevos requerimientos de tráfico y throughput se decide modificar una API para que mantenga datos en memoria en lugar de buscarlos a la base:
+
+- Pocos documentos (inmediato 1K, largo plazo ~<10K)
+- Alto throughput (proyección original 10 MRPM)
+- Alta resiliencia: amortizar picos de tráfico
+
+El desarrollo marcha bien, los tests marchan bien, las pruebas de carga, por otra parte...
+
+* En vida real: cosas raras
+
+Algo anda mal, y no parece constate
+
+.image ./resources/metric01.png _ 700
+
+Nota al lector: los picos no son buenos
+
+* En vida real: triage y debugging
+
+Cómo continuar? en estos casos la pregunta se traduce a: cómo podemos diagnosticar?
+
+Limitantes:
+
+- Entorno containerizado y restringido por políticas de seguridad
+- No determinismo
+- Distribución: idem anterior x _n_ instancias
+
+Pros:
+
+- Este caso es aislable a una sola instancia
+- Es issue es reproducible "fácilmente" con tráfico
+- Se puede observar, la limitación es (hasta ahora) con qué detalle
+- Nosotros conocemos y manejamos el código/plataforma de la app
+
+* En vida real: amigos inseparables
+
+Descartado el debugger local, pasamos a otro grupo de amigos de diagnóstico
+
+.image ./resources/friends.png _ 700
+
+- Profilers (trace, pprof)
+- Métricas (transaccionales y de recolección)
+- Logs
+- Bonus track: nuestra intuición
+
+* En vida real: intuyendo cosas
+
+Volviendo al primer gráfico, que podemos observar?
+
+.image ./resources/metric01.png _ 600
+
+- Degradación pareja en repo local y servicio
+- Ocurre en *picos* dado un período de tiempo
+
+Que parte del runtime corre cada _x_ tiempo? conociendo Go, ya tenemos nuestro primer sospechoso
+
+* Primer sospechoso: GC
+
+Intervalo - trace crash course:
+
+Obtener un trace
+
+- Encender pprof en nuestra app (recomendado en gin: [[https://github.com/DeanThompson/ginpprof][https://github.com/DeanThompson/ginpprof]])
+- curl http://mi-app.com/debug/pprof/trace?seconds=60 > foo
+- ???
+- Profit! transcurrido el tiempo finaliza el stream del archivo de trace
+
+Visualizar un trace
+
+- go tool trace foo
+- ???
+- No profit… (hora de buscar)
+
+* Trace: GC
+
+.image ./resources/trace01.png _ 900
+
+Figura 1: Cada ciclo de GC se lleva el 100% del tiempo de threads aplicativos, al mismo tiempo que hay ráfagas anormales de aumento de goroutinas por contención de requests, explicando la suba de tiempos y naturaleza bloqueante del mark cycle del GC
+
+* Trace: GC
+
+.image ./resources/trace02.png _ 500
+
+Figura 2: El GC trigger principal es logrus, el logger utilizado por nuestro toolkit interno
+
+* Segundo sospechoso: logrus
+
+Ya estamos apuntando a contención generada por un package, que podemos verificar desde el lado del trace?
+
+Al abrir un trace tenemos este menú:
+
+.image ./resources/tracemenu.png _ 300
+
+Del cual vamos a buscar 2 opciones:
+
+- Synchronization blocking profile
+- Scheduler latency profile
+
+* Segundo sospechoso: logrus...?
+
+Comparando los 2 perfiles llegamos al qué de la cuestión:
+
+.image ./resources/sync_sched.png _ 400
+
+Hay muchas goroutines tomando un mutex vs el unlock siendo demorado por el scheduler, lo que se hace una bola de nieve
+
+* Tercer sospechoso: runtime/instancia
+
+Volviendo por un momento al mundo real, el hecho relacionado a la degradación por el GC es que el runtime dispone de tan solo 2 threads de SO para servir goroutinas simultáneamente
+
+En Go 1.x se define por la variable de entorno GOMAXPROCS. En el trace se muestran como Proc 0 y Proc 1:
+
+.image ./resources/trace03.png _ 600
+
+El runtime usa por default la cantidad de núcleos lógicos del CPU como valor
+
+* Hasta ahora
+
+Qué problemas tenemos?
+
+- Contención de locks
+- Picos de GC
+- Uso de logs como causante
+
+* Atacando causas
+
+.image ./resources/crabs.jpg _ 400
+
+* Round 1: Logger
+
+Logrus serializa las escrituras mediante un mutex interno activado por defecto
+
+Vamos a apagarlo a ver qué pasa:
+
+.image ./resources/trace04.png _ 600
+
+Ahora la contención por goroutinas y los tiempos de GC se van por las nubes: 50~100x y 7x respectivamente. Qué pasó?
+
+* Round 1: Logger - Cosas raras (cont.)
+
+Cuando volvemos a los perfiles de bloqueo y sincronización, vemos que esta vez las escrituras se siguen serializando, pero esta vez vía un fdMutex:
+
+.image ./resources/sync_sched2.png _ 400
+
+Llegado a este punto, decidimos curar por amputación: eliminamos todos los logs del servicio afectado
+
+* Round 1: Logger - Cosas buenas (pero igual raras)
+
+Sin logs, ahora sí:
+
+.image ./resources/metric02.png _ 1000
+
+20 slides adentro, sería frustrante *no* *llegar* *al* *fondo* *de* *esto*
+(además, el tradeoff de no tener logs es inaceptable)
+
+* Round 2: Locks - Mito
+
+Continuemos con una trivia
+
+.image ./resources/think.jpg _ 350
+
+Mito:
+*Los* *locks* *son* *primitivas* *de* *sincronización* *de* *fácil* *implementación* *que* *no* *involucran* *lógica* *compleja*
+
+* Round 2: Locks - Realidad
+
+.image ./resources/speechless.jpg _ 400
+
+Realidad:
+La gran mayoría de las veces lo son en una app, pero llegado al nivel de implementación requerido por una stdlib o SO, se convierten en bichos altamente complejos en pos de llegar al mejor tradeoff entre performance y casos de uso
+
+* Round 2: Locks - sync.Mutex
+
+Qué hace sync.Mutex por detrás? muchas, muuuchas cosas:
+
+- Usa primitivas internas para manejar semáforos internos de runtime
+- Maneja las operaciones de spin y CAS necesarias para contener las goroutines que compiten por el lock
+
+Y tiene un modo de operación *mixto*:
+
+- Default: *FIFO* *+* *goroutines* ingresantes, y si el tiempo de espera de adquisición supera 1 milisegundo para cualquier waiter el mutex pasa a modo de *inanición*
+- *Inanición*: heurísticas varias aseguran que se sirvan todos los waiters y mitiga casos de tail latency, pero los tiempos de espera aumentan y la performance se puede degradar de forma global para todos los consumidores si el mutex opera bajo presión de este modo de forma consistente
+
+* Round 2: Locks - fdMutex
+
+Y del lado interno tenemos a fdMutex, una una implementación específica que serializa accesos a un wrapper interno especial de file descriptor
+
+Citando el código:
+
+poll:
+.code resources/poll_comment.go
+
+poll/fdMutex:
+.code resources/poll_comment.go
+
+* Round 2: Locks - Conclusiones
+
+.image ./resources/lock.jpg _ 400
+
+- Un lock en memoria es costoso bajo estrés sobre la zona crítica
+- El costo en tiempo de las operaciones en disco bloqueantes (en el contexto de una goroutina) es aún mayor
+- El caso de evitar serializaciones en memoria inadvertidamente incrementando la cantidad de syscalls de I/O (stdout) puede ser problemático (intercambio de tradeoff)
+
+* Round final: Garbage Collector
+
+El Garbage Collector (GC) es una bestia muy compleja y que nos quita de encima mucho trabajo a costa de tradeoffs que (deberían) ser transparentes a nosotros
+
+Parafraseando puntos del diseño del garbage collector de .NET Core (a su vez inspirado en el libro “The Garbage Collection Handbook”):
+
+- Los ciclos de GC deberían ser frecuentes pero sin saturar CPU
+- Un GC debe ser productivo y recuperar la mayor cantidad de memoria ociosa posible
+- Cada ciclo de GC debe ser rápido
+- Los desarrolladores de código no deberían saber mucho sobre el GC ni necesitar configurarlo manualmente
+
+* Round final: Garbage Collector - Go
+
+El garbage collector de go se basa (muy, muy por arriba) en los siguientes principios:
+
+- Mark and sweep: esto es, marca los objetos alcanzables por el programa y se recolectan aquellos que no quedaron marcados (porque ya no son accesibles y por ende están en desuso). Este tipo de GC demanda recorrer el heap de objetos periódicamente
+- Algoritmo tri-color: se utilizan 3 colores para el estado de alcance y marcado de los objetos: blanco (recolectable), gris (punteros mixtos) y negro (sin punteros a objetos blancos)
+- Ejecución concurrente: salvo mínimas pausas globales (Stop The World) en ciertas fases
+
+* Round final: Garbage Collector - Ciclo de vida de un ciclo
+
+El ciclo de vida del GC termina quedando formado por los siguientes pasos:
+
+- Sweep termination (STW)
+- Mark phase
+- Mark termination (STW)
+- Sweep phase
+- Una vez alocada suficiente memoria (GC trigger), _goto_ _a_
+
+* Round final: Garbage Collector - Trace
+
+El GC es agresivo en el uso de CPU, recurriendo a heurísticas para maximizar el uso de procs bajo distintos modos de operación (GC fraccional, dedicated e idle), como se puede ver en el trace:
+
+.image ./resources/trace06.png _ 1000
+
+* Round final: Garbage Collector - Happy path
+
+En el siguiente caso, operando normalmente por fuera un ciclo de GC, se puede ver el particionado de la traza de una misma goroutina (*G151980*):
+
+.image ./resources/trace07.png _ 800
+
+* Round final: Garbage Collector - Happy path (cont.)
+
+Como se puede ver, el scheduler la finaliza y retoma múltiples veces bajo diferentes procs hasta su finalización:
+
+.image ./resources/trace08.png _ 1000
+
+* Round final: Conclusiones
+
+Durance ciclos de GC y con un CPU ajustado, el scheduler no le otorga tiempo suficiente (o alguno) a estas goroutinas y termina ocurriendo el problema que nos llevó a hacer todo este análisis
+
+.image ./resources/wedidit.png _ 400
+
+Contención creciente + heurísticas anti inanición = mala combinación, especialmente si la aplicación sigue atendiendo tráfico
+
+* TL;DR
+
+* Post-mortem
+
+- Al hacer pruebas de carga en una POC para reemplazar un storage online por un repositorio en memoria se vieron picos de tiempos de respuesta muy altos
+- Se descubre que el abuso de logs en paths calientes de múltiples iteraciones es el culpable
+- Se ve contención y que el logger activa un mutex por default. Empeora x10 la performance al desactivarlo ya que la contención recae sobre stdout. Se eliminan los logs de dichos paths y la degradación desaparece
+- Se observa que el runtime de go corre con bajo nivel de paralelismo (GOMAXPROCS=2)
+- El culpable resulta ser una saturación de CPU compuesta por la limitación de runtime de 2 cores + los ciclos de GC concurrente + acumulación de goroutines durante los mismos debido a contención en locks (ram e I/O) consumidos desde el logger
+
+* Conclusiones Finales
+
+- Háganse amigos de las herramientas de profiling
+- Desconfíen (saludablemente) de la instrumentación que tengan en sus aplicaciones: el 99% de las veces es código que damos por asumido que funciona pero también puede fallar
+- El scheduler y el GC de Go son estado del arte y tratan de cubrir la mayor cantidad de usos posibles. Cada caso de uso es un mundo!
+
+* Enlaces
+
+Meetup
+
+- Esta presentación: [[http://bit.ly/34gBEHy][http://bit.ly/34gBEHy]]
+- Ejemplos: [[http://bit.ly/2PE4Xyo][http://bit.ly/2PE4Xyo]]
+
+Referencias y artículos relacionados:
+
+- Introducción a go trace por Rhys Hiltner: [[https://about.sourcegraph.com/go/an-introduction-to-go-tool-trace-rhys-hiltner][https://about.sourcegraph.com/go/an-introduction-to-go-tool-trace-rhys-hiltner]]
+- The Go runtime scheduler's clever way of dealing with system calls: [[https://utcc.utoronto.ca/~cks/space/blog/programming/GoSchedulerAndSyscalls][https://utcc.utoronto.ca/~cks/space/blog/programming/GoSchedulerAndSyscalls]]
+- Garbage Collection Design - .NET Core: [[https://github.com/dotnet/coreclr/blob/master/Documentation/botr/garbage-collection.md][https://github.com/dotnet/coreclr/blob/master/Documentation/botr/garbage-collection.md]]
+
+* Enlaces (cont.)
+
+- Go runtime docs: [[https://golang.org/pkg/runtime/][https://golang.org/pkg/runtime/]]
+- Go source code ;) - [[https://github.com/golang/go][https://github.com/golang/go]]
