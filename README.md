@@ -13,3 +13,5 @@ Example: [https://go-talks.appspot.com/github.com/lggomez/go-talks/2018/the-go-r
 * [Small presentation on advanced data types (español)](https://go-talks.appspot.com/github.com/lggomez/go-talks/2018_misc/adv_data_types/8.slide#1)
 ### 2019
 * [Go meetup Buenos Aires 2019 II - 2019/12/18 (español)](https://go-talks.appspot.com/github.com/lggomez/go-talks/2019/12-18-MELI/gophers-attack.slide#1) / [examples](https://github.com/lggomez/go-talks/tree/master/2019/12-18-MELI/example)
+### 2021
+* [Go meetup Buenos Aires 12th edition, 2021 - 2019/12/18 (español)](https://github.com/lggomez/go-talks/tree/master/2021/2021-11-23-PEYA/Meetup Go 12.pdf)
